@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+
+        <style>
+            * {
+                padding: 0;
+                margin: 0;
+                box-sizing: border-box;
+            }
+            h3 {
+                color: blueviolet;
+            }
+        </style>
+        <title>web component</title>
+    </head>
+    <body>
+        <h3>Web component</h3>
+        <todo-item checked>Todo 1 <span slot="desc">Value</span> </todo-item>
+        <todo-item>Todo 2</todo-item>
+        <todo-item>Todo 3</todo-item>
+
+        <script>
+            const temp = document.createElement("template");
+            temp.innerHTML = `
+                <style>
+                    label {
+                        display: block;
+                        color : aqua;
+                    }
+                    span {
+                        font-size: 0.75rem;
+                        font-weight: light;
+                        color: black;
+                    }
+                </style>
+                <label>
+                    <input type="checkbox"/>
+                    <slot></slot>
+                    <span><slot name="desc"></slot><span>
+                </label>
+            `;
+            class todoitem extends HTMLElement {
+                constructor() {
+                    super();
+                    const shadow = this.attachShadow({ mode: "open" });
+                    shadow.append(temp.content.cloneNode(true));
+                }
+    
+            }
+            customElements.define("todo-item", todoitem);
+        </script>
+    </body>
+</html>
