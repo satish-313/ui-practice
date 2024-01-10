@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>twitter tooltip</title>
+        <link rel="preconnect" href="https://fonts.googleapis.com" />
+        <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+        <link
+            href="https://fonts.googleapis.com/css2?family=Lato&family=Poppins&family=Roboto+Mono:ital@1&display=swap"
+            rel="stylesheet"
+        />
+        <style>
+            * {
+                box-sizing: border-box;
+                margin: 0px;
+            }
+            body {
+                background-color: #333;
+            }
+            .container {
+                max-width: 800px;
+                width: 90vw;
+                background-color: #333;
+                margin: 1rem auto;
+                padding: 0 1rem;
+            }
+            .card {
+                padding: 0.5rem;
+                margin-top: 1rem;
+                display: grid;
+                gap: 0.75rem;
+                grid-template-columns: 4rem auto;
+            }
+
+            img {
+                height: 3.5rem;
+                width: 3.5rem;
+                object-fit: cover;
+                border-radius: 50%;
+                display: block;
+            }
+
+            span,
+            p {
+                color: #e7e9ea;
+            }
+            p {
+                font-size: 1rem;
+                margin-top: 0.35rem;
+                font-family: "Roboto Mono", monospace;
+            }
+        </style>
+    </head>
+    <body>
+        <div class="container">
+            <div class="card">
+                <div>
+                    <img src="./staringcat.jpg" alt="staringcat" />
+                </div>
+                <div>
+                    <div>
+                        <span>staringCat</span>
+                        <i style="color: #71767b">@staringcat</i>
+                    </div>
+                    <div>
+                        <p>
+                            Lorem ipsum dolor sit, amet consectetur adipisicing
+                            elit. Repudiandae, atque.
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <script>
+            const lorem =
+                "Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo consequat. Duis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.".split(
+                    " "
+                );
+            let card = document.querySelector(".card");
+            let container = document.querySelector(".container");
+            const catlist = [
+                "angrycat.jpg",
+                "staringcat.jpg",
+                "kalacat.jpg",
+                "tigercat.jpg",
+                "walkingcat.jpg",
+                "yawncat.jpg",
+            ];
+            const cardValue = createInnerText();
+
+            for (let i = 0; i < randomNumber(20); i++) {
+                let clone = deepClone(card, cardValue[randomCat()]);
+                container.appendChild(clone);
+            }
+
+            function createInnerText() {
+                const list = [];
+                for (let item of catlist) {
+                    let name = item.split(".")[0];
+                    let obj = {
+                        src: `./${item}`,
+                        alt: name,
+                        span: name,
+                        i: `@${name}`,
+                        p: generateLorem(),
+                    };
+                    list.push(obj);
+                }
+                return list;
+            }
+            function generateLorem() {
+                let words = randomNumber(50);
+                string = lorem.slice(0, words).join(" ");
+                return string;
+            }
+            function randomCat() {
+                return Math.floor(Math.random() * catlist.length);
+            }
+            function randomNumber(num) {
+                return Math.floor(Math.random() * num) + 10;
+            }
+            function deepClone(og, item) {
+                const clone = og.cloneNode(false);
+
+                for (let i = 0; i < og.childNodes.length; i++) {
+                    const child = og.childNodes[i];
+
+                    if (child.nodeType === 1) {
+                        const childClone = deepClone(child, item);
+                        clone.appendChild(childClone);
+                    } else if (child.nodeType === 3) {
+                        const textNodeClone = document.createTextNode(
+                            child.nodeValue
+                        );
+                        clone.appendChild(textNodeClone);
+                    }
+                }
+                if (clone.nodeName === "IMG") {
+                    clone.src = item.src;
+                    clone.alt = item.alt;
+                } else if (clone.nodeName === "SPAN") {
+                    clone.innerText = item.span;
+                } else if (clone.nodeName === "P") {
+                    clone.innerText = item.p;
+                } else if (clone.nodeName === "I") {
+                    clone.innerText = item.i;
+                }
+                return clone;
+            }
+        </script>
+    </body>
+</html>
+<!-- 
+    font-family: 'Lato', sans-serif;
+    font-family: 'Poppins', sans-serif;
+    font-family: 'Roboto Mono', monospace;
+ -->
