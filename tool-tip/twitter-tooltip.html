@@ -50,10 +50,50 @@
                 margin-top: 0.35rem;
                 font-family: "Roboto Mono", monospace;
             }
+            .tooltip {
+                padding: 1rem;
+                width: 15rem;
+                background-color: #333;
+                color: #e7e9ea;
+                border-radius: 5px;
+                border: aqua solid 2px;
+            }
+            .img-top {
+                display: flex;
+                justify-content: space-between;
+            }
+            .follow {
+                display: flex;
+                border: #e7e9ea solid 1px;
+                border-radius: 3rem;
+                padding: 7px 15px;
+                cursor: pointer;
+            }
+            .follow:hover {
+                color: aquamarine;
+                border-color: aquamarine;
+            }
+            .desc {
+                max-height: 7rem;
+                overflow: hidden;
+                margin-top: 1rem;
+            }
         </style>
     </head>
     <body>
         <div class="container">
+            <div class="tooltip">
+                <div class="img-top">
+                    <img src="./angrycat.jpg" alt="angrycat" />
+                    <div>
+                        <span class="follow">Follow</span>
+                    </div>
+                </div>
+                <p>Angrycat</p>
+                <i style="color: #71767b">@angrycat</i>
+
+                <div class="desc">Lorem ipsum dolor sit amet consectetur.</div>
+            </div>
             <div class="card">
                 <div>
                     <img src="./staringcat.jpg" alt="staringcat" />
@@ -87,6 +127,7 @@
                 "walkingcat.jpg",
                 "yawncat.jpg",
             ];
+            let descMap = new Map()
             const cardValue = createInnerText();
 
             for (let i = 0; i < randomNumber(20); i++) {
@@ -94,6 +135,7 @@
                 container.appendChild(clone);
             }
 
+            console.log(descMap)
             function createInnerText() {
                 const list = [];
                 for (let item of catlist) {
@@ -103,14 +145,15 @@
                         alt: name,
                         span: name,
                         i: `@${name}`,
-                        p: generateLorem(),
+                        p: generateLorem(50),
                     };
                     list.push(obj);
+                    descMap.set(name,generateLorem(9))
                 }
                 return list;
             }
-            function generateLorem() {
-                let words = randomNumber(50);
+            function generateLorem(num) {
+                let words = randomNumber(num);
                 string = lorem.slice(0, words).join(" ");
                 return string;
             }
