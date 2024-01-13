@@ -18,6 +18,24 @@
             body {
                 background-color: #333;
             }
+
+            img {
+                height: 3.5rem;
+                width: 3.5rem;
+                object-fit: cover;
+                border-radius: 50%;
+                display: block;
+                cursor: pointer;
+            }
+            span,
+            p {
+                color: #e7e9ea;
+            }
+            p {
+                font-size: 1rem;
+                margin-top: 0.35rem;
+                font-family: "Roboto Mono", monospace;
+            }
             .container {
                 max-width: 800px;
                 width: 90vw;
@@ -33,30 +51,27 @@
                 grid-template-columns: 4rem auto;
             }
 
-            img {
-                height: 3.5rem;
-                width: 3.5rem;
-                object-fit: cover;
-                border-radius: 50%;
-                display: block;
-            }
-
-            span,
-            p {
-                color: #e7e9ea;
-            }
-            p {
-                font-size: 1rem;
-                margin-top: 0.35rem;
-                font-family: "Roboto Mono", monospace;
-            }
             .tooltip {
+                display: none;
                 padding: 1rem;
                 width: 15rem;
                 background-color: #333;
                 color: #e7e9ea;
                 border-radius: 5px;
                 border: aqua solid 2px;
+                position: absolute;
+                z-index: 5;
+                margin-top: 10px;
+                transform: translateX(calc(-50% + 1.75rem));
+            }
+            .tooltip::after {
+                content: "";
+                border: solid 10px transparent;
+                border-bottom-color: aqua;
+                position: absolute;
+                top: -1.3rem;
+                left: 50%;
+                transform: translateX(-50%);
             }
             .img-top {
                 display: flex;
@@ -81,22 +96,22 @@
         </style>
     </head>
     <body>
-        <div class="container">
-            <div class="tooltip">
-                <div class="img-top">
-                    <img src="./angrycat.jpg" alt="angrycat" />
-                    <div>
-                        <span class="follow">Follow</span>
-                    </div>
-                </div>
-                <p>Angrycat</p>
-                <i style="color: #71767b">@angrycat</i>
-
-                <div class="desc">Lorem ipsum dolor sit amet consectetur.</div>
-            </div>
-            <div class="card">
+        <div class="tooltip">
+            <div class="img-top">
+                <img src="./angrycat.jpg" alt="angrycat" />
                 <div>
-                    <img src="./staringcat.jpg" alt="staringcat" />
+                    <span class="follow">Follow</span>
+                </div>
+            </div>
+            <p>Angrycat</p>
+            <i style="color: #71767b">@angrycat</i>
+
+            <div class="desc">Lorem ipsum dolor sit amet consectetur.</div>
+        </div>
+        <div class="container">
+            <div style="display: none" class="card">
+                <div>
+                    <img src="./staringcat.jpg" alt="staringcat main" />
                 </div>
                 <div>
                     <div>
@@ -119,6 +134,7 @@
                 );
             let card = document.querySelector(".card");
             let container = document.querySelector(".container");
+            let tooltip = document.querySelector(".tooltip");
             const catlist = [
                 "angrycat.jpg",
                 "staringcat.jpg",
@@ -127,15 +143,17 @@
                 "walkingcat.jpg",
                 "yawncat.jpg",
             ];
-            let descMap = new Map()
+            let descMap = new Map();
             const cardValue = createInnerText();
 
-            for (let i = 0; i < randomNumber(20); i++) {
-                let clone = deepClone(card, cardValue[randomCat()]);
+            for (let i = 0; i < 20; i++) {
+                let clone = deepClone(card);
+                clone.style.display = "grid";
+                changeHtml(clone, cardValue[randomCat()]);
                 container.appendChild(clone);
             }
+            addELimg();
 
-            console.log(descMap)
             function createInnerText() {
                 const list = [];
                 for (let item of catlist) {
@@ -145,10 +163,10 @@
                         alt: name,
                         span: name,
                         i: `@${name}`,
-                        p: generateLorem(50),
+                        p: generateLorem(15),
                     };
                     list.push(obj);
-                    descMap.set(name,generateLorem(9))
+                    descMap.set(name, generateLorem(9));
                 }
                 return list;
             }
@@ -163,14 +181,52 @@
             function randomNumber(num) {
                 return Math.floor(Math.random() * num) + 10;
             }
-            function deepClone(og, item) {
+            function changeHtml(content, item) {
+                for (let val in item) {
+                    if (val === "src" || val === "alt") {
+                        let img = content.querySelector("img");
+                        img[val] = item[val];
+                        continue;
+                    }
+                    let tag = content.querySelector(val);
+                    tag.innerText = item[val];
+                }
+            }
+
+            function addELimg() {
+                let imgs = container.querySelectorAll("img");
+                for (let img of imgs) {
+                    img.addEventListener("mouseenter", function () {
+                        let pos = this.getBoundingClientRect();
+                        let screen = document.documentElement.clientHeight;
+                        let height = document.documentElement.scrollTop;
+                        let obj = {
+                            "src": this.src,
+                            "alt": this.alt,
+                            "i": `@${this.alt}`,
+                            "p": this.alt,
+                            ".desc": descMap.get(this.alt),
+                        };
+                        changeHtml(tooltip, obj);
+
+                        tooltip.style.display = "block";
+                        let tt = tooltip.getBoundingClientRect();
+                        tooltip.style.top = `${pos.bottom + height}px`;
+                        tooltip.style.left = `${pos.left}px`;
+                    });
+                    img.addEventListener("mouseleave", function () {
+                        tooltip.style.display = "none";
+                    });
+                }
+            }
+            function deepClone(og) {
                 const clone = og.cloneNode(false);
 
                 for (let i = 0; i < og.childNodes.length; i++) {
                     const child = og.childNodes[i];
 
                     if (child.nodeType === 1) {
-                        const childClone = deepClone(child, item);
+                        const childClone = deepClone(child);
                         clone.appendChild(childClone);
                     } else if (child.nodeType === 3) {
                         const textNodeClone = document.createTextNode(
@@ -178,16 +234,6 @@
                         );
                         clone.appendChild(textNodeClone);
                     }
-                }
-                if (clone.nodeName === "IMG") {
-                    clone.src = item.src;
-                    clone.alt = item.alt;
-                } else if (clone.nodeName === "SPAN") {
-                    clone.innerText = item.span;
-                } else if (clone.nodeName === "P") {
-                    clone.innerText = item.p;
-                } else if (clone.nodeName === "I") {
-                    clone.innerText = item.i;
                 }
                 return clone;
             }
