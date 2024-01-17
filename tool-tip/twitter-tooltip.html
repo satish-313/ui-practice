@@ -50,21 +50,34 @@
                 gap: 0.75rem;
                 grid-template-columns: 4rem auto;
             }
-
-            .tooltip {
-                display: none;
+            #tooltip {
                 padding: 1rem;
                 width: 15rem;
                 background-color: #333;
+                display: none;
                 color: #e7e9ea;
                 border-radius: 5px;
                 border: aqua solid 2px;
                 position: absolute;
                 z-index: 5;
-                margin-top: 10px;
-                transform: translateX(calc(-50% + 1.75rem));
             }
-            .tooltip::after {
+            .set-top {
+                transform: translateY(-100%) translateX(calc(-50%));
+            }
+
+            .set-bottom {
+                transform: translateX(calc(-50%));
+            }
+            .set-top::after {
+                content: "";
+                border: solid 10px transparent;
+                border-top-color: aqua;
+                position: absolute;
+                bottom: -1.3rem;
+                left: 50%;
+                transform: translateX(-50%);
+            }
+            .set-bottom::after {
                 content: "";
                 border: solid 10px transparent;
                 border-bottom-color: aqua;
@@ -96,7 +109,7 @@
         </style>
     </head>
     <body>
-        <div class="tooltip">
+        <div id="tooltip">
             <div class="img-top">
                 <img src="./angrycat.jpg" alt="angrycat" />
                 <div>
@@ -105,7 +118,6 @@
             </div>
             <p>Angrycat</p>
             <i style="color: #71767b">@angrycat</i>
-
             <div class="desc">Lorem ipsum dolor sit amet consectetur.</div>
         </div>
         <div class="container">
@@ -134,7 +146,7 @@
                 );
             let card = document.querySelector(".card");
             let container = document.querySelector(".container");
-            let tooltip = document.querySelector(".tooltip");
+            let tooltip = document.querySelector("#tooltip");
             const catlist = [
                 "angrycat.jpg",
                 "staringcat.jpg",
@@ -153,7 +165,58 @@
                 container.appendChild(clone);
             }
             addELimg();
+            class signalController {
+                controller;
+                constructor() {}
 
+                createSignal() {
+                    this.controller = new AbortController();
+                    let curSignal = this.controller.signal;
+                    return curSignal;
+                }
+
+                abortSignal() {
+                    this.controller.abort();
+                }
+            }
+            let signal = new signalController();
+
+            function showTooltip(signal) {
+                return new Promise((resolve, reject) => {
+                    let tt = setTimeout(() => {
+                        resolve();
+                    }, 500);
+                    if (signal.aborted) {
+                        clearTimeout(tt);
+                        reject();
+                    }
+                    signal.addEventListener("abort", () => {
+                        clearTimeout(tt);
+                        reject();
+                    });
+                });
+            }
+            function closeTooltip(signal) {
+                return new Promise((resolve, reject) => {
+                    let tt = setTimeout(() => {
+                        resolve();
+                    }, 500);
+                    if (signal.aborted) {
+                        clearTimeout(tt);
+                        reject();
+                    }
+                    signal.addEventListener("abort", () => {
+                        clearTimeout(tt);
+                        reject();
+                    });
+                });
+            }
+
+            function makeTtHide() {
+                tooltip.style.display = "none";
+                tooltip.classList.remove("set-top");
+                tooltip.classList.remove("set-bottom");
+            }
             function createInnerText() {
                 const list = [];
                 for (let item of catlist) {
@@ -196,29 +259,62 @@
             function addELimg() {
                 let imgs = container.querySelectorAll("img");
                 for (let img of imgs) {
-                    img.addEventListener("mouseenter", function () {
-                        let pos = this.getBoundingClientRect();
-                        let screen = document.documentElement.clientHeight;
-                        let height = document.documentElement.scrollTop;
-                        let obj = {
-                            "src": this.src,
-                            "alt": this.alt,
-                            "i": `@${this.alt}`,
-                            "p": this.alt,
-                            ".desc": descMap.get(this.alt),
-                        };
-                        changeHtml(tooltip, obj);
+                    img.addEventListener("mouseenter", async function () {
+                        try {
+                            await showTooltip(signal.createSignal());
 
-                        tooltip.style.display = "block";
-                        let tt = tooltip.getBoundingClientRect();
-                        tooltip.style.top = `${pos.bottom + height}px`;
-                        tooltip.style.left = `${pos.left}px`;
+                            let pos = this.getBoundingClientRect();
+                            let screen = document.documentElement.clientHeight;
+                            let height = document.documentElement.scrollTop;
+                            let obj = {
+                                src: this.src,
+                                alt: this.alt,
+                                i: `@${this.alt}`,
+                                p: this.alt,
+                                ".desc": descMap.get(this.alt),
+                            };
+
+                            changeHtml(tooltip, obj);
+                            tooltip.style.display = "block";
+                            let tt = tooltip.getBoundingClientRect();
+                            let mid = Math.floor((pos.left + pos.right) / 2);
+                            if (tt.height < pos.top) {
+                                tooltip.classList.add("set-top");
+                                tooltip.style.top = `${
+                                    pos.top + height - 10
+                                }px`;
+                                tooltip.style.left = `${mid}px`;
+                            } else if (tt.height < screen - pos.bottom) {
+                                tooltip.classList.add("set-bottom");
+                                tooltip.style.top = `${
+                                    pos.bottom + height + 10
+                                }px`;
+                                tooltip.style.left = `${mid}px`;
+                            } else {
+                                tooltip.classList.add("set-top");
+                                tooltip.style.top = `${
+                                    pos.top + height - 10
+                                }px`;
+                                tooltip.style.left = `${mid}px`;
+                            }
+                        } catch (error) {}
                     });
-                    img.addEventListener("mouseleave", function () {
-                        tooltip.style.display = "none";
+                    img.addEventListener("mouseleave", async function () {
+                        signal.abortSignal();
+                        try {
+                            await closeTooltip(signal.createSignal());
+                            makeTtHide();
+                        } catch (error) {}
                     });
                 }
             }
+            tooltip.addEventListener("mouseenter", function () {
+                signal.abortSignal();
+            });
+            tooltip.addEventListener("mouseleave", async function () {
+                await new Promise((r) => setTimeout(r, 200));
+                makeTtHide();
+            });
             function deepClone(og) {
                 const clone = og.cloneNode(false);
 
