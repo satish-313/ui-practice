@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Loading</title>
+        <style>
+            * {
+                margin: 0px;
+            }
+
+            .main {
+                margin: 2rem auto;
+                padding: 1rem;
+                height: 13rem;
+                width: 13rem;
+                position: relative;
+            }
+            .dot {
+                height: 10px;
+                width: 10px;
+                background-color: red;
+                position: absolute;
+                top: 16px;
+                left: 18px;
+                border-radius: 50%;
+            }
+            .rotating {
+                margin: 0px auto;
+                height: 10rem;
+                width: 10rem;
+                border: solid 3px red;
+                border-radius: 50%;
+                position: relative;
+                border-top-color: transparent;
+                border-right-color: transparent;
+                animation: rotating 3s linear infinite;
+            }
+            .cnt {
+                top: 5.5rem;
+                left: 5.5rem;
+                position: absolute;
+            }
+            .cnt::before {
+                content: "";
+                animation: loading 3s linear infinite;
+                letter-spacing: 1px;
+            }
+            @keyframes loading {
+                0% {
+                    content: "loading";
+                }
+                25% {
+                    content: "loading.";
+                }
+                50% {
+                    content: "loading..";
+                }
+                75% {
+                    content: "loading...";
+                }
+                100% {
+                    content: "loading....";
+                }
+            }
+            @keyframes rotating {
+                0% {
+                    transform: rotate(0deg);
+                }
+
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="main">
+            <div class="cnt"></div>
+            <div class="rotating">
+                <div class="dot"></div>
+            </div>
+        </div>
+    </body>
+</html>
