@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>stop watch</title>
+        <style>
+            * {
+                margin: 0px;
+            }
+
+            .wall {
+                height: 20rem;
+                width: 20rem;
+                margin: 5rem auto;
+                background-color: goldenrod;
+                border: solid goldenrod 5px;
+                border-radius: 1rem;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            .watch {
+                height: 12rem;
+                width: 12rem;
+                background-color: #fff;
+                border: salmon solid 3px;
+                border-radius: 50%;
+                margin: 3rem auto;
+                position: relative;
+            }
+            .dot {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                height: 5px;
+                width: 5px;
+                border-radius: 50%;
+                background-color: #333;
+                transform: translateX(-50%) translateY(-50%);
+            }
+            .hour {
+                --content: "";
+                --deg: "0deg";
+                height: 50%;
+                width: 1rem;
+                position: absolute;
+                top: 0px;
+                left: 50%;
+                transform: rotate(var(--deg)) translateX(-50%);
+                transform-origin: 0% 100%;
+                display: flex;
+                justify-content: center;
+                transition: all 0.5s ease;
+            }
+            .hour::before {
+                content: var(--content);
+                height: max-content;
+                font-size: 0.75rem;
+                transform: rotate(calc(-1 * var(--deg, 0deg)));
+            }
+            .line {
+                height: 35%;
+                width: 1px;
+                background-color: #333;
+                position: absolute;
+                bottom: 50%;
+                left: 50%;
+                transform-origin: 0% 100%;
+            }
+        
+            .anim {
+                animation: rotating 60s linear infinite;
+            }
+            @keyframes rotating {
+                0% {
+                    transform: rotate(0deg);
+                }
+                100% {
+                    transform: rotate(360deg);
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="wall">
+            <div class="watch">
+                <div class="line anim"></div>
+                <div class="hour"></div>
+                <div class="hour"></div>
+                <div class="hour"></div>
+                <div class="hour"></div>
+                <div class="hour"></div>
+                <div class="hour"></div>
+                <div class="hour"></div>
+                <div class="hour"></div>
+                <div class="hour"></div>
+                <div class="hour"></div>
+                <div class="hour"></div>
+                <div class="hour"></div>
+                <div class="dot"></div>
+            </div>
+        </div>
+        <button>stop</button>
+    </body>
+    <script>
+        let hours = document.querySelectorAll(".hour");
+        for (let i = 0; i < hours.length; i++) {
+            hours[i].style.setProperty("--content", `'${i + 1}'`);
+            hours[i].style.setProperty("--deg", `${(i + 1) * 30}deg`);
+        }
+
+        let animationStart;
+        let line = document.querySelector(".line");
+        line.addEventListener("animationstart", () => {
+            animationStart = Date.now();
+        });
+
+        line.addEventListener("animationcancel", () => {
+            let elapsedTime = Date.now() - animationStart;
+            let animationDuration = 60000;
+            let progress = elapsedTime % animationDuration;
+            let degree = Math.floor((6 / 1000) * progress);
+            console.log(degree);
+            line.style.transform = `rotate(${degree}deg)`
+        });
+
+        let btn = document.querySelector("button");
+        btn.addEventListener("click", function () {
+            line.classList.toggle("anim");
+        });
+    </script>
+</html>
