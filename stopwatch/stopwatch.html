@@ -26,7 +26,6 @@
                 background-color: #fff;
                 border: salmon solid 3px;
                 border-radius: 50%;
-                margin: 3rem auto;
                 position: relative;
             }
             .dot {
@@ -51,13 +50,17 @@
                 transform-origin: 0% 100%;
                 display: flex;
                 justify-content: center;
-                transition: all 0.5s ease;
             }
             .hour::before {
                 content: var(--content);
                 height: max-content;
                 font-size: 0.75rem;
                 transform: rotate(calc(-1 * var(--deg, 0deg)));
+            }
+            .canvas {
+                position: absolute;
+                height: 12rem;
+                width: 12rem;
             }
             .line {
                 height: 35%;
@@ -68,7 +71,7 @@
                 left: 50%;
                 transform-origin: 0% 100%;
             }
-        
+
             .anim {
                 animation: rotating 60s linear infinite;
             }
@@ -80,12 +83,42 @@
                     transform: rotate(360deg);
                 }
             }
+            #play {
+                position: absolute;
+                top: 50%;
+                left: 50%;
+                transform: translateX(-50%) translateY(-50%);
+                display: none;
+                gap: 0.3rem;
+            }
+            #play div {
+                height: 2rem;
+                width: 0.5rem;
+                background-color: green;
+            }
+            #stop {
+                border: solid transparent 1rem;
+                border-left-color: red;
+                position: absolute;
+                display: none;
+                top: 50%;
+                left: calc(50% + 0.5rem);
+                transform: translateX(-50%) translateY(-50%);
+                z-index: 2;
+            }
         </style>
     </head>
     <body>
         <div class="wall">
             <div class="watch">
-                <div class="line anim"></div>
+                <div class="canvas">
+                    <div class="line anim"></div>
+                </div>
+                <div id="play">
+                    <div></div>
+                    <div></div>
+                </div>
+                <div id="stop"></div>
                 <div class="hour"></div>
                 <div class="hour"></div>
                 <div class="hour"></div>
@@ -101,7 +134,6 @@
                 <div class="dot"></div>
             </div>
         </div>
-        <button>stop</button>
     </body>
     <script>
         let hours = document.querySelectorAll(".hour");
@@ -109,9 +141,15 @@
             hours[i].style.setProperty("--content", `'${i + 1}'`);
             hours[i].style.setProperty("--deg", `${(i + 1) * 30}deg`);
         }
+        let isPlaying = true;
+        let stop = document.getElementById("stop");
+        let play = document.getElementById("play");
+        let watch = document.querySelector(".watch");
 
         let animationStart;
+        let degree = 0;
         let line = document.querySelector(".line");
+        let canvas = document.querySelector(".canvas");
         line.addEventListener("animationstart", () => {
             animationStart = Date.now();
         });
@@ -120,14 +158,26 @@
             let elapsedTime = Date.now() - animationStart;
             let animationDuration = 60000;
             let progress = elapsedTime % animationDuration;
-            let degree = Math.floor((6 / 1000) * progress);
-            console.log(degree);
-            line.style.transform = `rotate(${degree}deg)`
+            let localDegree = Math.ceil((6 / 1000) * progress);
+            degree = (degree + localDegree) % 360;
+            canvas.style.transform = `rotate(${degree}deg)`;
+            line.style.display = "block";
         });
+        watch.addEventListener("click", async function () {
+            isPlaying = !isPlaying;
 
-        let btn = document.querySelector("button");
-        btn.addEventListener("click", function () {
-            line.classList.toggle("anim");
+            if (isPlaying) {
+                stop.style.display = "none";
+                play.style.display = "flex";
+                line.classList.add("anim")
+                await new Promise((r) => setTimeout(r, 1000));
+                play.style.display = "none";
+            } else {
+                line.classList.remove("anim")
+                stop.style.display = "block";
+            }
+
+
         });
     </script>
 </html>
