@@ -8,25 +8,37 @@
             * {
                 margin: 0px;
             }
+            :root {
+                --screenbg: #333;
+            }
 
             .wall {
+                display: none;
                 height: 20rem;
                 width: 20rem;
-                margin: 5rem auto;
+                margin: 3rem auto;
                 background-color: goldenrod;
                 border: solid goldenrod 5px;
                 border-radius: 1rem;
-                display: flex;
                 justify-content: center;
                 align-items: center;
             }
             .watch {
                 height: 12rem;
                 width: 12rem;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                position: relative;
+            }
+            .time-watch {
+                height: 100%;
+                width: 100%;
                 background-color: #fff;
                 border: salmon solid 3px;
                 border-radius: 50%;
-                position: relative;
+                position: absolute;
+                cursor: pointer;
             }
             .dot {
                 position: absolute;
@@ -104,34 +116,105 @@
                 top: 50%;
                 left: calc(50% + 0.5rem);
                 transform: translateX(-50%) translateY(-50%);
+            }
+            .btn {
+                display: block;
+                margin: 1rem auto;
+                padding: 10px 15px;
+                cursor: pointer;
+            }
+            .screen {
+                position: absolute;
+                width: 100%;
+                height: 100%;
+                border-radius: 50%;
+                overflow: hidden;
                 z-index: 2;
+            }
+            .left-screen {
+                position: absolute;
+                z-index: 3;
+                height: 100%;
+                width: 50%;
+                background-color: var(--screenbg);
+            }
+
+            .right-screen {
+                position: absolute;
+                z-index: 3;
+                left: 50%;
+                height: 100%;
+                width: 50%;
+                background-color: var(--screenbg);
+            }
+            .left-move {
+                animation: leftmove 1s linear 1;
+            }
+            .inverse-left-move {
+                display: none;
+                animation: leftmove 1s linear 1 reverse;
+            }
+
+            .right-move {
+                animation: rightmove 1s linear 1;
+            }
+            .inverse-right-move {
+                display: none;
+                animation: rightmove 1s linear 1 reverse;
+            }
+
+            @keyframes leftmove {
+                0% {
+                    transform: translateX(0%);
+                }
+                100% {
+                    transform: translateX(-100%);
+                }
+            }
+            @keyframes rightmove {
+                0% {
+                    transform: translateX(0%);
+                }
+                100% {
+                    transform: translateX(100%);
+                }
             }
         </style>
     </head>
     <body>
+        <button class="btn">Show</button>
         <div class="wall">
             <div class="watch">
-                <div class="canvas">
-                    <div class="line anim"></div>
+                <div class="screen">
+                    <div class="left-screen left-move"></div>
+                    <div class="left-screen inverse-left-move"></div>
+                    <div class="right-screen right-move"></div>
+                    <div class="right-screen inverse-right-move"></div>
                 </div>
-                <div id="play">
-                    <div></div>
-                    <div></div>
+
+                <div class="time-watch">
+                    <div class="canvas">
+                        <div class="line"></div>
+                    </div>
+                    <div id="play">
+                        <div></div>
+                        <div></div>
+                    </div>
+                    <div id="stop"></div>
+                    <div class="hour"></div>
+                    <div class="hour"></div>
+                    <div class="hour"></div>
+                    <div class="hour"></div>
+                    <div class="hour"></div>
+                    <div class="hour"></div>
+                    <div class="hour"></div>
+                    <div class="hour"></div>
+                    <div class="hour"></div>
+                    <div class="hour"></div>
+                    <div class="hour"></div>
+                    <div class="hour"></div>
+                    <div class="dot"></div>
                 </div>
-                <div id="stop"></div>
-                <div class="hour"></div>
-                <div class="hour"></div>
-                <div class="hour"></div>
-                <div class="hour"></div>
-                <div class="hour"></div>
-                <div class="hour"></div>
-                <div class="hour"></div>
-                <div class="hour"></div>
-                <div class="hour"></div>
-                <div class="hour"></div>
-                <div class="hour"></div>
-                <div class="hour"></div>
-                <div class="dot"></div>
             </div>
         </div>
     </body>
@@ -144,40 +227,88 @@
         let isPlaying = true;
         let stop = document.getElementById("stop");
         let play = document.getElementById("play");
-        let watch = document.querySelector(".watch");
+        let wall = document.querySelector(".wall");
+        let watch = document.querySelector(".time-watch");
+        let btn = document.querySelector(".btn");
 
         let animationStart;
         let degree = 0;
         let line = document.querySelector(".line");
         let canvas = document.querySelector(".canvas");
+        let screen = document.querySelector(".screen");
+        let leftmove = document.querySelector(".left-screen");
+        let leftmoveClose = document.querySelector(
+            ".left-screen.inverse-left-move"
+        );
+        let rightmove = document.querySelector(".right-screen");
+        let rightmoveClose = document.querySelector(
+            ".right-screen.inverse-right-move"
+        );
+
+        btn.addEventListener("click", () => {
+            wall.style.display = "flex";
+        });
+
+        leftmove.addEventListener("animationend", () => {
+            leftmove.style.display = "none";
+            screen.style.zIndex = -1;
+            canvas.style.transform = "rotate(0deg)";
+            play.style.display = "none";
+            stop.style.display = "none";
+            isPlaying = true;
+            degree = 0;
+            line.classList.add("anim");
+        });
+        rightmove.addEventListener("animationend", () => {
+            rightmove.style.display = "none";
+        });
+
         line.addEventListener("animationstart", () => {
             animationStart = Date.now();
         });
-
         line.addEventListener("animationcancel", () => {
             let elapsedTime = Date.now() - animationStart;
             let animationDuration = 60000;
             let progress = elapsedTime % animationDuration;
             let localDegree = Math.ceil((6 / 1000) * progress);
             degree = (degree + localDegree) % 360;
+            console.log(degree)
             canvas.style.transform = `rotate(${degree}deg)`;
             line.style.display = "block";
         });
-        watch.addEventListener("click", async function () {
+
+        watch.addEventListener("click", async function (e) {
+            e.stopPropagation();
             isPlaying = !isPlaying;
 
             if (isPlaying) {
                 stop.style.display = "none";
                 play.style.display = "flex";
-                line.classList.add("anim")
-                await new Promise((r) => setTimeout(r, 1000));
+                line.classList.add("anim");
+                await new Promise((r) => setTimeout(r, 2500));
                 play.style.display = "none";
             } else {
-                line.classList.remove("anim")
+                line.style.display = "none";
+                line.classList.remove("anim");
+                play.style.display = "none";
                 stop.style.display = "block";
             }
-
-
+        });
+        wall.addEventListener("click", async function () {
+            screen.style.zIndex = 2;
+            leftmoveClose.style.display = "block";
+            rightmoveClose.style.display = "block";
+            await new Promise((r) => setTimeout(r, 1000));
+            watch.style.display = "none";
+        });
+        screen.addEventListener("click", async (e) => {
+            e.stopPropagation();
+            watch.style.display = "block";
+            leftmoveClose.style.display = "none";
+            rightmoveClose.style.display = "none";
+            leftmove.style.display = "block";
+            rightmove.style.display = "block";
+            await new Promise((r) => setTimeout(r, 1000));
         });
     </script>
 </html>
