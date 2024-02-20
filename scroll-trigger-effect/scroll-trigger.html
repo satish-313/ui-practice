@@ -16,6 +16,7 @@
                 line-height: 1.25;
                 letter-spacing: 1px;
                 font-family: Verdana, Geneva, Tahoma, sans-serif;
+                position: relative;
             }
             main {
                 max-width: 1000px;
@@ -23,6 +24,12 @@
                 display: grid;
                 grid-template-columns: 13rem auto;
                 gap: 1rem;
+            }
+            input[type="radio"] {
+                display: none;
+            }
+            input[type="radio"]:checked + div {
+                background-color: #1b1b1b;
             }
             #sidebar {
                 position: fixed;
@@ -34,7 +41,7 @@
                 border-radius: 5px;
             }
             #sidebar .sidebar-item:hover {
-                background-color: #1b1b1b;
+                color: #8cb4ff;
             }
             #content > *:not(:first-child) {
                 margin-top: 1rem;
@@ -105,23 +112,34 @@
 
         const splitText = text.split(" ");
         const length = splitText.length;
-        const sidebarContentList = [
-            "intro",
-            "index",
-            "over view",
-            "description",
-            "example",
-            "note",
-        ];
+        const sidebarContentList = ["intro","index","over view","description","example","note"];
         const sidebarEl = document.querySelector("#sidebar");
         const contentEl = document.querySelector("#content");
         createSideBar();
         createContent();
-        console.log(document.querySelectorAll(".content-item"))
+        const sidebarItems = document.querySelectorAll(".content-item");
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((e) => {
+                    if (e.isIntersecting) {
+                        let checkId = e.target.firstChild.innerText
+                            .toLowerCase()
+                            .replace(" ", "-");
+                        let checkEl = document.querySelector(`#${checkId}`);
+                        checkEl.checked = true;
+                    }
+                });
+            },
+            {
+                rootMargin: "-9% 0px -90% 0px",
+            }
+        );
+        sidebarItems.forEach((item) => observer.observe(item));
 
         function createSideBar() {
             for (let name of sidebarContentList) {
-                let str = `<div class="sidebar-item">${name}</div>`;
+                let _name = name.replace(" ", "-");
+                let str = `<div><input name="aside" type='radio' id='${_name}' /> <div for='${_name}' class="sidebar-item">${name}</div></div>`;
                 let item = createHtml(str);
                 sidebarEl.appendChild(item);
             }
