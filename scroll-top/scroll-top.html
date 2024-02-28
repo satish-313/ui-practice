@@ -1,0 +1,210 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>scroll top shower</title>
+        <style>
+            * {
+                margin: 0px;
+                padding: 0px;
+            }
+            body {
+                background-color: #333;
+                color: #fff;
+                font-size: 1.25rem;
+                line-height: 1.25;
+                letter-spacing: 1px;
+                font-family: Verdana, Geneva, Tahoma, sans-serif;
+                position: relative;
+            }
+            main {
+                max-width: 1000px;
+                margin: 1rem auto;
+                display: grid;
+                grid-template-columns: 13rem auto;
+                gap: 1rem;
+            }
+            input[type="radio"] {
+                display: none;
+            }
+            input[type="radio"]:checked + div {
+                background-color: #1b1b1b;
+            }
+            #top-scroll {
+                position: fixed;
+                top: 0px;
+                height: 3px;
+                width: 0%;
+                background-color: rgb(24, 199, 8);
+                z-index: 10;
+                transition: all linear 200ms;
+            }
+            #sidebar {
+                position: fixed;
+            }
+            #sidebar .sidebar-item {
+                text-transform: capitalize;
+                cursor: pointer;
+                padding: 5px 10px;
+                border-radius: 5px;
+            }
+            #sidebar .sidebar-item:hover {
+                color: #8cb4ff;
+            }
+            #content > *:not(:first-child) {
+                margin-top: 1rem;
+            }
+            .content-item > :nth-child(1) {
+                text-transform: capitalize;
+                margin-bottom: 0.5rem;
+                font-size: 1.75rem;
+                text-decoration: underline;
+                position: relative;
+                font-weight: bold;
+            }
+            .content-item > :nth-child(1)::after {
+                content: ":-";
+                position: absolute;
+                transform: translateX(30%);
+            }
+            .content-item > :nth-child(2) {
+                line-height: 1.6;
+                font-size: 1.2rem;
+            }
+        </style>
+    </head>
+    <body>
+        <div id="top-scroll"></div>
+        <h1 style="text-align: center">Scroll Example</h1>
+        <main>
+            <div>
+                <div id="sidebar"></div>
+            </div>
+            <div id="content"></div>
+        </main>
+    </body>
+    <script>
+        const text = `Lorem ipsum dolor sit amet consectetur adipisicing elit. Error sit
+                earum, deleniti, dolorum itaque quisquam voluptate vero sint eum
+                corrupti sapiente sequi perferendis magnam, consequuntur maiores facilis
+                tempore optio asperiores exercitationem esse. Quae dolorem, dolore
+                adipisci dolor fugiat consectetur laboriosam libero rerum mollitia
+                dolorum at excepturi doloremque reiciendis ab delectus, explicabo,
+                sapiente facilis voluptates magnam similique necessitatibus temporibus
+                expedita cum. Doloremque porro consequuntur corrupti dolorum ea eos
+                perferendis reiciendis recusandae perspiciatis aut iure ducimus in totam
+                eum quia necessitatibus, iste aspernatur placeat sed sunt architecto
+                iusto ipsum explicabo quaerat! Numquam atque veniam quam. Iste, quod
+                rerum? Quam dolorem possimus libero accusantium eveniet impedit ratione
+                enim repellat eum, dolore voluptas quasi dicta at cum voluptatem. Odit
+                quia eius culpa? Obcaecati architecto est laudantium, aperiam quaerat
+                ipsum nihil nesciunt nisi harum reprehenderit eligendi culpa nobis nam
+                libero. Eius facere, laborum neque corporis voluptate optio dolor
+                veritatis amet adipisci eligendi laboriosam natus? Nihil porro expedita
+                tenetur praesentium dignissimos ratione sit a quia, dolores distinctio
+                eveniet vel possimus consequuntur doloribus animi similique eum.
+                Provident obcaecati est laborum maiores laboriosam mollitia earum
+                aliquid minus quas, recusandae incidunt, amet similique magnam eos
+                quaerat esse dolore error placeat repellat non at perferendis assumenda
+                cum? Cupiditate optio suscipit tempora est eum voluptatibus deleniti non
+                qui ut ipsum labore eaque provident modi, possimus velit? Provident,
+                reiciendis eaque dolor corporis dolores ut est impedit vel at maiores.
+                Ex, necessitatibus harum. Quas ut doloremque non molestiae dolorem.
+                Voluptatem iste quasi quaerat natus, deserunt quibusdam quae quam cumque
+                illum illo repellat explicabo reiciendis nesciunt quia maxime ipsa ad
+                necessitatibus! Dolor aperiam at, repudiandae, ex deserunt excepturi
+                similique eligendi obcaecati doloremque porro aliquam, labore pariatur
+                eveniet incidunt cupiditate. Repellendus deserunt blanditiis nihil
+                doloremque! Eligendi veniam ea ad corporis necessitatibus saepe deserunt
+                nobis odit. Possimus dolores impedit distinctio laudantium laboriosam
+                numquam provident aspernatur necessitatibus!`;
+
+        const splitText = text.split(" ");
+        const length = splitText.length;
+        const sidebarContentList = [
+            "intro",
+            "index",
+            "over view",
+            "description",
+            "example",
+            "note",
+        ];
+
+        const sidebarEl = document.querySelector("#sidebar");
+        const contentEl = document.querySelector("#content");
+        const scrollShow = document.querySelector("#top-scroll");
+        createSideBar();
+        createContent();
+        const sidebarItems = document.querySelectorAll(".content-item");
+        let scrollable = totalscrollHeight();
+        setWidth();
+
+        const observer = new IntersectionObserver(
+            (entries) => {
+                entries.forEach((e) => {
+                    if (e.isIntersecting) {
+                        let checkId = e.target.firstChild.innerText
+                            .toLowerCase()
+                            .replace(" ", "-");
+                        let checkEl = document.querySelector(`#${checkId}`);
+                        checkEl.checked = true;
+                    }
+                });
+            },
+            {
+                rootMargin: "-9% 0px -90% 0px",
+            }
+        );
+        sidebarItems.forEach((item) => observer.observe(item));
+
+        window.addEventListener("resize", () => {
+            scrollable = totalscrollHeight();
+        });
+        window.addEventListener("scrollend", setWidth);
+
+        function createSideBar() {
+            for (let name of sidebarContentList) {
+                let _name = name.replace(" ", "-");
+                let str = `
+                <div>
+                    <input name="aside" type='radio' id='${_name}' /> 
+                    <div for='${_name}' class="sidebar-item">${name}</div>
+                </div>`;
+                let item = createHtml(str);
+                sidebarEl.appendChild(item);
+            }
+        }
+        function createContent() {
+            for (let name of sidebarContentList) {
+                let randText = randomTextGen(250, 30);
+                let str = `<div class="content-item"><p>${name}</p><p>${randText} \n ${randText}.</p></div>`;
+                let item = createHtml(str);
+                contentEl.appendChild(item);
+            }
+        }
+        function totalscrollHeight() {
+            const screenHeight = document.documentElement.clientHeight;
+            const totalHeight = document.documentElement.scrollHeight;
+            return totalHeight - screenHeight;
+        }
+        function setWidth() {
+            let scrollHeight = document.documentElement.scrollTop;
+            let per = (scrollHeight / scrollable).toFixed(4) * 100;
+            scrollShow.style.width = `${per}%`;
+        }
+        function createHtml(str) {
+            const parser = new DOMParser();
+            const docs = parser.parseFromString(str, "text/html");
+            return docs.body.firstChild;
+        }
+
+        function randomTextGen(range, min) {
+            let randomPos = Math.floor(Math.random() * length) + min;
+            while (!(randomPos + range < length - 10)) {
+                randomPos = Math.floor(Math.random() * length);
+            }
+            return splitText.slice(randomPos, randomPos + range).join(" ");
+        }
+    </script>
+</html>
