@@ -130,7 +130,6 @@
             "example",
             "note",
         ];
-
         const sidebarEl = document.querySelector("#sidebar");
         const contentEl = document.querySelector("#content");
         const scrollShow = document.querySelector("#top-scroll");
@@ -144,8 +143,9 @@
             (entries) => {
                 entries.forEach((e) => {
                     if (e.isIntersecting) {
-                        let checkId = e.target.firstChild.innerText
-                            .toLowerCase()
+                        let checkId = e.target
+                            .querySelector("p")
+                            .innerText.toLowerCase()
                             .replace(" ", "-");
                         let checkEl = document.querySelector(`#${checkId}`);
                         checkEl.checked = true;
@@ -161,14 +161,32 @@
         window.addEventListener("resize", () => {
             scrollable = totalscrollHeight();
         });
-        window.addEventListener("scrollend", setWidth);
+        let c;
+        window.addEventListener("scrollend", () => {
+            if (c && !c.signal.aborted) c.abort();
+            c = new AbortController();
+            (() =>
+                new Promise((r, e) => {
+                    if (c.aborted) e();
+                    let t = setTimeout(() => r(), 1000);
+                    c.signal.addEventListener("abort", () => {
+                        clearTimeout(t);
+                        e();
+                    });
+                }))()
+                .then(() => {
+                    setWidth();
+                    c.abort();
+                })
+                .catch(() => {});
+        });
 
         function createSideBar() {
             for (let name of sidebarContentList) {
                 let _name = name.replace(" ", "-");
                 let str = `
                 <div>
-                    <input name="aside" type='radio' id='${_name}' /> 
+                    <input name="aside" type='radio' id='${_name}' />
                     <div for='${_name}' class="sidebar-item">${name}</div>
                 </div>`;
                 let item = createHtml(str);
@@ -178,7 +196,11 @@
         function createContent() {
             for (let name of sidebarContentList) {
                 let randText = randomTextGen(250, 30);
-                let str = `<div class="content-item"><p>${name}</p><p>${randText} \n ${randText}.</p></div>`;
+                let str = `
+                <div class="content-item">
+                    <p>${name}</p>
+                    <p>${randText} \n ${randText}.</p>
+                </div>`;
                 let item = createHtml(str);
                 contentEl.appendChild(item);
             }

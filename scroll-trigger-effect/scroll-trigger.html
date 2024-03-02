@@ -112,7 +112,14 @@
 
         const splitText = text.split(" ");
         const length = splitText.length;
-        const sidebarContentList = ["intro","index","over view","description","example","note"];
+        const sidebarContentList = [
+            "intro",
+            "index",
+            "over view",
+            "description",
+            "example",
+            "note",
+        ];
         const sidebarEl = document.querySelector("#sidebar");
         const contentEl = document.querySelector("#content");
         createSideBar();
@@ -122,8 +129,9 @@
             (entries) => {
                 entries.forEach((e) => {
                     if (e.isIntersecting) {
-                        let checkId = e.target.firstChild.innerText
-                            .toLowerCase()
+                        let checkId = e.target
+                            .querySelector("p")
+                            .innerText.toLowerCase()
                             .replace(" ", "-");
                         let checkEl = document.querySelector(`#${checkId}`);
                         checkEl.checked = true;
@@ -139,7 +147,11 @@
         function createSideBar() {
             for (let name of sidebarContentList) {
                 let _name = name.replace(" ", "-");
-                let str = `<div><input name="aside" type='radio' id='${_name}' /> <div for='${_name}' class="sidebar-item">${name}</div></div>`;
+                let str = `
+                <div>
+                    <input name="aside" type='radio' id='${_name}' /> 
+                    <div for='${_name}' class="sidebar-item">${name}</div>
+                </div>`;
                 let item = createHtml(str);
                 sidebarEl.appendChild(item);
             }
@@ -148,7 +160,11 @@
         function createContent() {
             for (let name of sidebarContentList) {
                 let randText = randomTextGen(250, 30);
-                let str = `<div class="content-item"><p>${name}</p><p>${randText} \n ${randText}.</p></div>`;
+                let str = `
+                <div class="content-item">
+                    <p>${name}</p>
+                    <p>${randText} \n ${randText}.</p>
+                </div>`;
                 let item = createHtml(str);
                 contentEl.appendChild(item);
             }
