@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Circular Progress Bar</title>
+        <style>
+            @property --progress {
+                syntax: "<length-percentage>";
+                inherits: false;
+                initial-value: 0%;
+            }
+            .bar {
+                width: 10rem;
+                aspect-ratio: 1/1;
+                margin: 5rem auto;
+                border-radius: 50%;
+                display: grid;
+                place-items: center;
+                transition: --progress linear 500ms;
+                background-image: conic-gradient(
+                    blueviolet var(--progress, 0),
+                    rgba(107, 128, 125, 0.44) 0%
+                );
+            }
+            .bar::after {
+                content: attr(data-progress)"%";
+                width: calc(10rem - 10px);
+                aspect-ratio: 1/1;
+                background-color: aliceblue;
+                border-radius: 50%;
+                display: grid;
+                place-items: center;
+                transition: content;
+                transition-delay: 1000ms;
+            }
+            .bar[data-progress="100"]::after {
+                animation: progressEnd 0s 500ms forwards;
+            }
+            @keyframes progressEnd {
+                to {
+                    content: "done";
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <section>
+            <div class="bar" data-progress="0"></div>
+        </section>
+    </body>
+    <script>
+        const bar = document.querySelector(".bar");
+        let progress = 0;
+
+        function progressing() {
+            itVal = setInterval(() => { 
+                let r = Math.floor(Math.random() * 15);
+                progress += r;
+                if (progress >= 100) {
+                    progress = 100;
+                }
+
+                bar.style.setProperty("--progress", progress + "%");
+                bar.setAttribute("data-progress", progress);
+                if (progress >= 100) {
+                    clearInterval(itVal);
+                }
+
+            }, 700);
+        }
+        progressing();
+    </script>
+</html>
