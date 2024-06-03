@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <title>Blob shape</title>
+        <style>
+            .blob {
+                height: 200px;
+                width: 200px;
+                margin: 2rem auto;
+                background-color: aqua;
+                display: grid;
+                place-items: center;
+                overflow: hidden;
+                animation: anime 10s ease-in-out infinite;
+            }
+            img {
+                height: inherit;
+                width: inherit;
+            }
+
+            @keyframes anime {
+                0% {
+                    border-radius: 50% 50% 32% 68% / 47% 33% 67% 53%;
+                }
+                25% {
+                    border-radius: 60% 40% 59% 41% / 31% 73% 27% 69%;
+                }
+                50% {
+                    border-radius: 29% 71% 59% 41% / 45% 30% 70% 55%;
+                }
+                75% {
+                    border-radius: 54% 46% 44% 56% / 78% 59% 41% 22%;
+                }
+                100% {
+                    border-radius: 50% 50% 32% 68% / 47% 33% 67% 53%;
+                }
+            }
+        </style>
+    </head>
+    <body>
+        <div class="blob">
+            <img src="./me.png" alt="" srcset="" />
+        </div>
+    </body>
+</html>
