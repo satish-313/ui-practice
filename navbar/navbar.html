@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta charset="UTF-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link
+            rel="stylesheet"
+            href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
+            integrity="sha512-Kc323vGBEqzTmouAECnVceyQqyqdsSiqLQISBL29aUW4U/M7pSPA/gEUZQqv1cwx4OnYxTxve5UMg5GT6L4JJg=="
+            crossorigin="anonymous"
+            referrerpolicy="no-referrer"
+        />
+        <title>Navbar</title>
+        <style>
+            * {
+                margin: 0px;
+            }
+            body {
+                background-color: rgb(182, 187, 185);
+                font-family: monospace;
+            }
+            main {
+                max-width: 1000px;
+                width: 90vw;
+                margin: 0 auto;
+            }
+            nav {
+                background-color: navy;
+                padding: 0.5rem;
+                display: flex;
+                justify-content: space-between;
+                position: relative;
+                overflow: hidden;
+                box-shadow: 0 0 0 100vmax navy;
+                clip-path: inset(0 -100vmax);
+            }
+
+            ul {
+                list-style-type: none;
+                padding: 0px;
+            }
+
+            li {
+                color: gainsboro;
+                font-weight: 500;
+                font-size: 1.25rem;
+                letter-spacing: 2px;
+                display: inline-block;
+            }
+            i {
+                color: gainsboro;
+                font-size: 1.25rem;
+                cursor: pointer;
+             }
+            input[type="checkbox"] {
+                display: none;
+            }
+
+            input[type="checkbox"]:not(:checked) ~ label i.fa-bars {
+                display: inline;
+            }
+            input[type="checkbox"]:not(:checked) ~ label i.fa-x {
+                display: none;
+            }
+            input[type="checkbox"]:checked ~ label i.fa-bars {
+                display: none;
+            }
+            input[type=":checkbox"]:checked ~ label i.fa-x {
+                display: inline;
+            }
+        </style>
+    </head>
+    <body>
+        <main>
+            <nav>
+                <div>
+                    <ul>
+                        <li>Home</li>
+                        <li>Product</li>
+                        <li>Order</li>
+                        <li>About</li>
+                    </ul>
+                </div>
+                <div>
+                    <input type="checkbox" id="nav-check" />
+                    <label for="nav-check">
+                        <i class="fa-solid fa-bars"></i>
+                    </label>
+                    <label for="nav-check">
+                        <i class="fa-solid fa-x"></i>
+                    </label>
+                </div>
+            </nav>
+        </main>
+    </body>
+</html>
